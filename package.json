@@ -1,5 +1,17 @@
 {
   "name": "hardhat-project",
+  "scripts": {
+    "hardhat": "hardhat --",
+    "prettier:check": "prettier '**/*.{js,ts}' --check",
+    "prettier:fix": "prettier '**/*.{js,ts}' --write",
+    "eslint:check": "eslint '**/*.{js,ts}'",
+    "eslint:fix": "eslint '**/*.{js,ts}' --fix",
+    "solhint:check": "solhint 'contracts/**/*.sol'",
+    "solhint:fix": "solhint 'contracts/**/*.sol' --fix",
+    "lint:check": "npm run prettier:check && npm run eslint:check && npm run solhint:check",
+    "lint:fix": "npm run prettier:fix && npm run eslint:fix && npm run solhint:fix",
+    "test": "hardhat test"
+  },
   "devDependencies": {
     "@nomiclabs/hardhat-ethers": "^2.0.5",
     "@nomiclabs/hardhat-etherscan": "^3.0.3",
