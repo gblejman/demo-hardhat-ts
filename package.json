@@ -10,6 +10,7 @@
     "solhint:fix": "solhint 'contracts/**/*.sol' --fix",
     "lint:check": "npm run prettier:check && npm run eslint:check && npm run solhint:check",
     "lint:fix": "npm run prettier:fix && npm run eslint:fix && npm run solhint:fix",
+    "compile": "hardhat compile",
     "test": "hardhat test"
   },
   "devDependencies": {
