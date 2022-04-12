@@ -1,22 +1,29 @@
 import { ethers } from 'hardhat';
 import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers';
 import { expect } from 'chai';
+import { ZERO_ADDRESS } from '../utils';
+import { ERC20 } from '../../typechain';
 
-import { deploy, ZERO_ADDRESS } from '../utils';
+export const deploy = async (
+  name: string,
+  symbol: string,
+  decimals: number,
+  totalSupply: number
+) => {
+  const factory = await ethers.getContractFactory('ERC20');
+  const contract = await factory.deploy(name, symbol, decimals, totalSupply);
+  await contract.deployed();
+
+  return contract;
+};
 
 describe('ERC20', () => {
-  const spec = {
-    name: 'ERC20',
-    args: {
-      name: 'GDB Token',
-      symbol: 'GDB',
-      decimals: 18,
-      totalSupply: 1000000,
-    },
-  };
+  const name = 'GDB Token';
+  const symbol = 'GDB';
+  const decimals = 18;
+  const totalSupply = 1000000;
 
-  // TODO: what should the ts type be?
-  let contract: any;
+  let contract: ERC20;
 
   // some handly addresses to interact with
   let owner: SignerWithAddress;
@@ -25,95 +32,65 @@ describe('ERC20', () => {
 
   beforeEach(async () => {
     [owner, account1, account2] = await ethers.getSigners();
-    contract = await deploy(spec);
+    contract = await deploy(name, symbol, decimals, totalSupply);
   });
 
   describe('constructor()', () => {
     it('Should assign totalSupply to contract owner', async () => {
-      const spec = {
-        name: 'ERC20',
-        args: {
-          name: 'GDB Token',
-          symbol: 'GDB',
-          decimals: 18,
-          totalSupply: 1000000,
-        },
-      };
-      const [owner, account1] = await ethers.getSigners();
-      const contract = await deploy(spec);
-
-      expect(await contract.name()).to.equal(spec.args.name);
-      expect(await contract.symbol()).to.equal(spec.args.symbol);
-      expect(await contract.totalSupply()).to.equal(spec.args.totalSupply);
-      expect(await contract.balanceOf(owner.address)).to.equal(
-        spec.args.totalSupply
-      );
+      expect(await contract.name()).to.equal(name);
+      expect(await contract.symbol()).to.equal(symbol);
+      expect(await contract.totalSupply()).to.equal(totalSupply);
+      expect(await contract.balanceOf(owner.address)).to.equal(totalSupply);
       expect(await contract.balanceOf(account1.address)).to.equal(0);
     });
 
     it('Should fail if token name is empty', async () => {
-      let spec = {
-        name: 'ERC20',
-        args: { name: '', symbol: 'GDB', decimals: 18, totalSupply: 1000000 },
-      };
+      const name = '';
+      const symbol = 'GDB';
+      const decimals = 18;
+      const totalSupply = 1000000;
 
-      await expect(deploy(spec)).to.be.revertedWith(
-        'Token name must not be empty'
-      );
+      await expect(
+        deploy(name, symbol, decimals, totalSupply)
+      ).to.be.revertedWith('Token name must not be empty');
     });
 
     it('Should fail if symbol name is empty', async () => {
-      let spec = {
-        name: 'ERC20',
-        args: {
-          name: 'GDB Token',
-          symbol: '',
-          decimals: 18,
-          totalSupply: 1000000,
-        },
-      };
+      const name = 'GDB Token';
+      const symbol = '';
+      const decimals = 18;
+      const totalSupply = 1000000;
 
-      await expect(deploy(spec)).to.be.revertedWith(
-        'Token symbol must not be empty'
-      );
+      await expect(
+        deploy(name, symbol, decimals, totalSupply)
+      ).to.be.revertedWith('Token symbol must not be empty');
     });
 
     it('Should fail if decimals is greater than 18', async () => {
-      let spec = {
-        name: 'ERC20',
-        args: {
-          name: 'GDB Token',
-          symbol: 'GDB',
-          decimals: 19,
-          totalSupply: 1000000,
-        },
-      };
+      const name = 'GDB Token';
+      const symbol = 'GDB';
+      const decimals = 19;
+      const totalSupply = 1000000;
 
-      await expect(deploy(spec)).to.be.revertedWith(
-        'Token decimals must be between 0 and 18'
-      );
+      await expect(
+        deploy(name, symbol, decimals, totalSupply)
+      ).to.be.revertedWith('Token decimals must be between 0 and 18');
     });
 
     it('Should fail if total supply is empty', async () => {
-      let spec = {
-        name: 'ERC20',
-        args: {
-          name: 'GDB Token',
-          symbol: 'GDB',
-          decimals: 18,
-          totalSupply: 0,
-        },
-      };
+      const name = 'GDB Token';
+      const symbol = 'GDB';
+      const decimals = 18;
+      const totalSupply = 0;
 
-      await expect(deploy(spec)).to.be.revertedWith(
-        'Token total supply must be positive'
-      );
+      await expect(
+        deploy(name, symbol, decimals, totalSupply)
+      ).to.be.revertedWith('Token total supply must be positive');
     });
   });
 
   describe('transfer()', () => {
-    it('Should succeed if sender has sufficient balance', async () => {
-      const totalSupply = spec.args.totalSupply;
+    it('Should succeed if caller has sufficient balance', async () => {
       const from = owner;
       const to = account1;
       const amount = 10;
@@ -140,7 +117,7 @@ describe('ERC20', () => {
       );
     });
 
-    it('Should fail if sender has insufficient balance', async () => {
+    it('Should fail if caller has insufficient balance', async () => {
       const from = account1;
       const to = account2;
       const amount = 10;
@@ -189,7 +166,6 @@ describe('ERC20', () => {
       const spender = account1;
       const to = account2;
       const amount = 10;
-      const totalSupply = spec.args.totalSupply;
 
       expect(await contract.balanceOf(from.address)).to.equal(totalSupply);
       expect(await contract.balanceOf(to.address)).to.equal(0);
@@ -217,10 +193,6 @@ describe('ERC20', () => {
       );
       expect(await contract.balanceOf(to.address)).to.equal(amount);
 
-      console.log(
-        'allow',
-        await contract.allowance(from.address, spender.address)
-      );
       expect(await contract.allowance(from.address, spender.address)).to.equal(
         0
       );
