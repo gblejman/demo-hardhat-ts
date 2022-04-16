@@ -22,6 +22,11 @@ task('accounts', 'Prints the list of accounts', async (taskArgs, hre) => {
 // You need to export an object to set up your config
 // Go to https://hardhat.org/config/ to learn more
 
+const ropstenUrl = process.env.INFURA_ROPSTEN_URL;
+const deployerAccountKey = process.env.DEPLOYER_ACCOUNT_KEY;
+const reportGas = process.env.REPORT_GAS;
+const etherscanApiKey = process.env.ETHERSCAN_API_KEY;
+
 const config: HardhatUserConfig = {
   solidity: '0.8.4',
   networks: {
@@ -30,17 +35,16 @@ const config: HardhatUserConfig = {
       chainId: 1337,
     },
     ropsten: {
-      url: process.env.ROPSTEN_URL || '',
-      accounts:
-        process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : [],
+      url: ropstenUrl,
+      accounts: deployerAccountKey !== undefined ? [deployerAccountKey] : [],
     },
   },
   gasReporter: {
-    enabled: process.env.REPORT_GAS !== undefined,
+    enabled: reportGas !== undefined,
     currency: 'USD',
   },
   etherscan: {
-    apiKey: process.env.ETHERSCAN_API_KEY,
+    apiKey: etherscanApiKey,
   },
 };
 

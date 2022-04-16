@@ -10,8 +10,11 @@
     "solhint:fix": "solhint 'contracts/**/*.sol' --fix",
     "lint:check": "npm run prettier:check && npm run eslint:check && npm run solhint:check",
     "lint:fix": "npm run prettier:fix && npm run eslint:fix && npm run solhint:fix",
+    "node:localhost": "hardhat node",
     "compile": "hardhat compile",
-    "test": "hardhat test"
+    "test": "hardhat test",
+    "deploy:erc20:localhost": "hardhat run scripts/deploy-erc20.ts --network localhost",
+    "deploy:erc20:ropsten": "hardhat run scripts/deploy-erc20.ts --network ropsten"
   },
   "devDependencies": {
     "@nomiclabs/hardhat-ethers": "^2.0.5",

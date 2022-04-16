@@ -58,3 +58,24 @@ test all contracts:
 ```sh
 yarn test ./test/token/erc20.ts
 ```
+
+# Deploying
+
+## localhost
+
+```sh
+yarn node:localhost
+yarn deploy:[contractName]:localhost
+```
+
+## ropsten
+
+```sh
+yarn deploy:[contractName]:ropsten
+```
+
+# Contracts
+
+## ERC20:
+
+- ropsten: 0x19d92649A4b8307D85B10f3f4654B4B84b787310
